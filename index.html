@@ -66,6 +66,20 @@ body{min-height:100vh;}
 .seg button{ border:none; background:none; padding:8px 16px; border-radius:8px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer; transition:all .15s;}
 .seg button.active{background:var(--navy-900); color:#fff;}
 
+/* Colorful Main-page tab bar — each tab gets its own accent color when inactive */
+#segMainNav{ flex-wrap:wrap; gap:6px; padding:6px; }
+#segMainNav button{ font-weight:800; border-radius:9px; }
+#segMainNav button:nth-child(1){ color:#1E4FA8; }
+#segMainNav button:nth-child(2){ color:#0F7A5A; }
+#segMainNav button:nth-child(3){ color:#B4750F; }
+#segMainNav button:nth-child(4){ color:#7A3FA0; }
+#segMainNav button:nth-child(5){ color:#C0392B; }
+#segMainNav button:nth-child(6){ color:#1B7F87; }
+#segMainNav button:nth-child(7){ color:#8A5A1E; }
+#segMainNav button:nth-child(8){ color:#3A5CC9; }
+#segMainNav button:nth-child(9){ color:#B0206E; }
+#segMainNav button.active{ background:var(--navy-900) !important; color:#fff !important; }
+
 .kpi-row{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:14px; margin-bottom:22px;}
 .kpi{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; box-shadow:0 1px 2px rgba(16,24,40,0.04); position:relative; overflow:hidden;}
 .kpi::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent, var(--steel-500));}
@@ -142,7 +156,20 @@ tfoot td:first-child{text-align:left; position:sticky; left:0; background:var(--
 .mode-switch{display:flex; background:rgba(255,255,255,0.08); border-radius:10px; padding:3px; gap:2px;}
 .mode-switch button{border:none; background:none; color:#93A9CC; font-weight:700; font-size:12px; padding:7px 15px; border-radius:8px; cursor:pointer; transition:all .15s;}
 .mode-switch button.active{background:var(--steel-600); color:#fff;}
+/* Dashboard 2 (Cluster Heads) — minimal build, fixed 2.0 Cr, no switches, RED theme */
 #modeSwitch{display:none !important;}
+#targetSwitch{display:none !important;}
+.topbar{background:linear-gradient(120deg, #4A0E0E, #A61C1C) !important;}
+.nav-wrap{background:linear-gradient(120deg,#FCEEEE,#FFF6F0) !important; border-bottom:2px solid #C0392B;}
+#segMainNav{background:transparent !important; border:none !important;}
+#segMainNav button.active{ background:#A61C1C !important; }
+.seg button.active{ background:#A61C1C !important; }
+.target-input:focus{ border-color:#C0392B !important; box-shadow:0 0 0 3px rgba(192,57,43,0.15) !important; }
+.badge.live{ color:#A61C1C !important; border-color:#F3C6C6 !important; background:#FCEEEE !important; }
+.live-pill{ background:rgba(192,57,43,0.16) !important; border-color:rgba(192,57,43,0.4) !important; color:#F7B4A8 !important; }
+.live-dot{ background:#E86A5C !important; }
+#tblMainItemsBranchOverview th:nth-child(3), #tblMainItemsBranchOverview td:nth-child(3){ display:none; }
+#tb-vas, .tb-divider:has(+ #tb-vas), #tb-vas + .l{ display:none !important; }
 
 body.mode-main .nav-wrap{display:none;}
 body.mode-main .view{display:none !important;}
@@ -172,7 +199,6 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
     <div class="mark">AM</div>
     <div class="topbar-title">
       <h1>AM Motors — Cluster &amp; Workshop VAS Plan</h1>
-      <p>Service + Bodyshop · Malabar &amp; Central Kerala Cluster</p>
     </div>
   </div>
   <div class="topbar-right">
@@ -190,7 +216,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
     <div class="tb-divider"></div>
     <div class="tb-stat"><div class="v" id="tb-advisors">--</div><div class="l">Advisors</div></div>
     <div class="tb-divider"></div>
-    <div class="tb-stat"><div class="v" id="tb-vas">--</div><div class="l">Current Combined VAS</div></div>
+    <div class="tb-stat"><div class="v" id="tb-vas">--</div><div class="l">Avg Combined VAS</div></div>
     <div class="tb-divider"></div>
     <span class="live-pill"><span class="live-dot"></span>MAY–JUL ACTUALS</span>
   </div>
@@ -219,7 +245,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
     <div class="section-head">
       <div>
         <h2>Main Summary</h2>
-        <div class="sub">The one number that matters — ₹1,50,00,000/month, split by branch, item, and advisor. Every figure here is full and unrounded.</div>
+        <div class="sub">The one number that matters — ₹2,00,00,000/month, split by branch, item, and advisor. Every figure here is full and unrounded.</div>
       </div>
       <span class="badge live">₹1,50,00,000 network target</span>
     </div>
@@ -233,7 +259,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
         </div>
         <div style="display:flex; gap:14px; flex-wrap:wrap;">
           <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px 20px; min-width:170px;">
-            <div style="color:#93A9CC; font-size:10px; text-transform:uppercase; letter-spacing:0.5px;">Current VAS</div>
+            <div style="color:#93A9CC; font-size:10px; text-transform:uppercase; letter-spacing:0.5px;">Avg VAS</div>
             <div style="color:#fff; font-family:var(--font-mono); font-size:19px; font-weight:600; margin-top:5px;" id="msCurrentVas">—</div>
           </div>
           <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px 20px; min-width:170px;">
@@ -454,7 +480,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
       </div>
     </div>
 
-    <div class="footnote">Use the tabs above for branch, item, advisor, market, load-based, and day-wise views — including the full item-wise and advisor plans.</div>
+    <div class="footnote">Use the tabs above for branch, item, market, load-based, and day-wise views — including the full item-wise and advisor plans.</div>
   </div>
 
 
@@ -771,7 +797,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
       <div class="cardsub" style="margin-top:-8px; margin-bottom:14px;">Every branch's current item quantity and amount per month, with the advisors carrying that workshop</div>
       <div class="table-wrap">
         <table id="tblWorkshopItems" data-export="Workshop_Item_Performance">
-          <thead><tr><th>Branch</th><th>Advisors (Srv / Bds)</th><th>Current Item Qty/Mo</th><th>Current Item Amount/Mo</th><th>Top Items This Month</th></tr></thead>
+          <thead><tr><th>Branch</th><th>Advisors (Srv / Bds)</th><th>Avg Item Qty/Mo</th><th>Avg Item Amount/Mo</th><th>Items Used This Month</th></tr></thead>
           <tbody></tbody>
           <tfoot></tfoot>
         </table>
@@ -851,27 +877,25 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
       </div>
     </div>
 
-    <div class="grid-2" style="align-items:start;">
-      <div class="card">
-        <h3 id="wipItemTitle">Item Quantities Needed to Achieve Full Target — This Branch</h3>
-        <div class="cardsub">All catalog items required to hit 100% of target, largest first</div>
-        <div class="table-wrap" style="max-height:480px;">
-          <table id="tblWipItems" data-export="Workshop_Item_Requirement">
-            <thead><tr><th>Item</th><th>Price/Unit</th><th>Qty/Mo Needed</th><th>Amount Needed</th></tr></thead>
-            <tbody></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+    <div class="card" style="margin-bottom:20px;">
+      <h3 id="wipItemTitle">Item Quantities Needed to Achieve Full Target — This Branch</h3>
+      <div class="cardsub">All catalog items required to hit 100% of target, largest first</div>
+      <div class="table-wrap" style="max-height:480px;">
+        <table id="tblWipItems" data-export="Workshop_Item_Requirement">
+          <thead><tr><th>Item</th><th>Price/Unit</th><th>Qty/Mo Needed</th><th>Amount Needed</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
       </div>
-      <div class="card">
-        <h3 id="wipAdvisorTitle">Full Target Plan by Advisor — This Branch</h3>
-        <div class="cardsub">Each advisor's own target and the complete item list to deliver it — this is what to monitor</div>
-        <div class="table-wrap" style="max-height:480px;">
-          <table id="tblWipAdvisors" data-export="Advisor_Target_Plan">
-            <thead><tr><th>Advisor</th><th>Dept</th><th>Current (Reference)</th><th>Target to Achieve</th><th>Total Items/Mo</th><th>Items Needed (units/mo)</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    </div>
+    <div class="card">
+      <h3 id="wipAdvisorTitle">Full Target Plan by Advisor — This Branch</h3>
+      <div class="cardsub">Each advisor's own target and the complete item list to deliver it — this is what to monitor</div>
+      <div class="table-wrap" style="max-height:480px;">
+        <table id="tblWipAdvisors" data-export="Advisor_Target_Plan">
+          <thead><tr><th>Advisor</th><th>Dept</th><th>Current (Reference)</th><th>Target to Achieve</th><th>Total Items/Mo</th><th>Items Needed (units/mo)</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
 
@@ -900,7 +924,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
       <span class="badge live">7-dealer benchmark</span>
     </div>
 
-    <div class="rate-note warn"><b>Name cross-check (confirmed):</b> RD = RR (Rodent Repellent, same item). AM MOTORS in the competitor data is our own dealer, excluded from the benchmark below. IPP, IC, and AC Vent Cleaning combine multiple DMS names into one code. Mech care now maps to <b>HWSR + HSWR-ALL</b> (Hard Water Removal) — both benchmarked at TATA 1's 48.5%, a real new gap since you currently sell zero of either. PR and TF-S still have no competitor row, so they run at your own current rate only.</div>
+    <div class="rate-note warn"><b>Name cross-check (confirmed):</b> RD = RR (Rodent Repellent, same item). AM MOTORS in the competitor data is our own dealer, excluded from the benchmark below. IPP, IC, and AC Vent Cleaning combine multiple DMS names into one code. Mech care has no equivalent in your 16-item catalog and is not used anywhere. <b>HWSR + HSWR-ALL</b> (Hard Water Removal) use a manual 20% market-potential estimate, not a competitor row. PR and TF-S still have no benchmark, so they run at your own current rate only.</div>
 
     <div class="kpi-row" id="kpiMarket"></div>
 
@@ -1019,7 +1043,11 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
         <option value="calendar">Every calendar day (incl. Sundays)</option>
         <option value="working">Working days only (excl. Sundays)</option>
       </select>
-      <button id="dayResetBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↺ Reset to even split</button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="small-muted">Monthly Target:</span>
+        <input type="number" id="dayMonthlyTargetInput" class="target-input" style="width:150px;" min="0" step="1000">
+      </div>
+      <button id="dayResetBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↺ Reset to computed target</button>
     </div>
 
     <div class="kpi-row" id="kpiDayPlanner"></div>
@@ -1315,7 +1343,7 @@ function ambiguousDeptLoad(dept){
   return (a?a[dept].avg:0) + (n?n[dept].avg:0);
 }
 
-const COMPETITOR_BENCHMARK = {"TF":{"items":["Paint Protection (1+2)"],"am_motors_pct":1.0,"max_pct":5.1,"best_dealer":"VOLKSWAGEN","avg_pct":3.17},"UB":{"items":["Underbody Coating"],"am_motors_pct":2.3,"max_pct":16.7,"best_dealer":"KIA","avg_pct":6.42},"IPP":{"items":["Internal Panel Protection","IPP 1 Door"],"am_motors_pct":2.1,"max_pct":7.5,"best_dealer":"HYUNDAI","avg_pct":2.88},"IC":{"items":["Normal Interior Cleaning","Foam Interior Cleaning"],"am_motors_pct":1.3,"max_pct":17.5,"best_dealer":"KIA","avg_pct":8.53},"EC":{"items":["Evaporator Cleaning"],"am_motors_pct":1.6,"max_pct":25.3,"best_dealer":"HYUNDAI","avg_pct":11.03},"SC":{"items":["Silencer Coating"],"am_motors_pct":5.7,"max_pct":23.5,"best_dealer":"KIA","avg_pct":9.87},"A/C-D":{"items":["AC Vent Cleaning"],"am_motors_pct":4.6,"max_pct":46.6,"best_dealer":"TATA 2","avg_pct":40.6},"ED":{"items":["Engine Dressing"],"am_motors_pct":0.0,"max_pct":43.4,"best_dealer":"TATA 2","avg_pct":19.08},"RD":{"items":["Rodent Repellent"],"am_motors_pct":0.0,"max_pct":11.5,"best_dealer":"KIA","avg_pct":2.37},"CW":{"items":["Ceramic Wax"],"am_motors_pct":0.0,"max_pct":9.4,"best_dealer":"TATA 1","avg_pct":1.57},"HWSR":{"items":["Mech care"],"am_motors_pct":0.0,"max_pct":48.5,"best_dealer":"TATA 1","avg_pct":29.13},"HSWR-ALL":{"items":["Mech care"],"am_motors_pct":0.0,"max_pct":48.5,"best_dealer":"TATA 1","avg_pct":29.13}};
+const COMPETITOR_BENCHMARK = {"TF":{"items":["Paint Protection (1+2)"],"am_motors_pct":1.0,"max_pct":5.1,"best_dealer":"VOLKSWAGEN","avg_pct":3.17},"UB":{"items":["Underbody Coating"],"am_motors_pct":2.3,"max_pct":16.7,"best_dealer":"KIA","avg_pct":6.42},"IPP":{"items":["Internal Panel Protection","IPP 1 Door"],"am_motors_pct":2.1,"max_pct":7.5,"best_dealer":"HYUNDAI","avg_pct":2.88},"IC":{"items":["Normal Interior Cleaning","Foam Interior Cleaning"],"am_motors_pct":1.3,"max_pct":17.5,"best_dealer":"KIA","avg_pct":8.53},"EC":{"items":["Evaporator Cleaning"],"am_motors_pct":1.6,"max_pct":25.3,"best_dealer":"HYUNDAI","avg_pct":11.03},"SC":{"items":["Silencer Coating"],"am_motors_pct":5.7,"max_pct":23.5,"best_dealer":"KIA","avg_pct":9.87},"A/C-D":{"items":["AC Vent Cleaning"],"am_motors_pct":4.6,"max_pct":46.6,"best_dealer":"TATA 2","avg_pct":40.6},"ED":{"items":["Engine Dressing"],"am_motors_pct":0.0,"max_pct":43.4,"best_dealer":"TATA 2","avg_pct":19.08},"RD":{"items":["Rodent Repellent"],"am_motors_pct":0.0,"max_pct":11.5,"best_dealer":"KIA","avg_pct":2.37},"CW":{"items":["Ceramic Wax"],"am_motors_pct":0.0,"max_pct":9.4,"best_dealer":"TATA 1","avg_pct":1.57},"HWSR":{"items":["Hard Water Removal (manual estimate)"],"am_motors_pct":0.0,"max_pct":20.0,"best_dealer":"Manual estimate","avg_pct":20.0},"HSWR-ALL":{"items":["Hard Water Removal (manual estimate)"],"am_motors_pct":0.0,"max_pct":20.0,"best_dealer":"Manual estimate","avg_pct":20.0}};
 const NO_BENCHMARK_NOTE = 'own current rate (no competitor data)';
 
 function itemBenchmarkPct(code){
@@ -1990,16 +2018,16 @@ function renderWorkshopItemsTable(){
     const qtys = branchItemQty(b.branch, itemMode);
     const totalAmt = activeItems.reduce((a,it)=>a+amounts[it],0);
     const totalQty = activeItems.reduce((a,it)=>a+qtys[it],0);
-    const top3 = [...activeItems].sort((x,y)=>amounts[y]-amounts[x]).filter(it=>amounts[it]>0).slice(0,3);
+    const usedItems = [...activeItems].sort((x,y)=>amounts[y]-amounts[x]).filter(it=>amounts[it]>0);
     const adv = advByBranch[b.branch] || {srv:0,bds:0};
     const qtys2 = branchItemQty(b.branch, itemMode);
-    return {branch:b.branch, adv, totalAmt, totalQty, top3, amounts, qtys:qtys2};
+    return {branch:b.branch, adv, totalAmt, totalQty, usedItems, amounts, qtys:qtys2};
   }).sort((a,b)=>b.totalAmt-a.totalAmt);
 
   fillTable('tblWorkshopItems', displayRows, r=>{
     const advCell = r.branch===AMBIGUOUS_BRANCH ? '—' : `${r.adv.srv} / ${r.adv.bds}`;
     const branchLabel = r.branch;
-    const chips = r.top3.length ? r.top3.map(it=>`<span class="itemchip">${dispCode(it)} · ${r.qtys[it].toFixed(1)}/mo · ${fmtInt(r.amounts[it])}</span>`).join(' ') : '<span class="small-muted">No sales this month</span>';
+    const chips = r.usedItems.length ? r.usedItems.map(it=>`<span class="itemchip">${dispCode(it)} · ${r.qtys[it].toFixed(1)}/mo · ${fmtInt(r.amounts[it])}</span>`).join(' ') : '<span class="small-muted">No sales this month</span>';
     return `<tr><td>${branchLabel}</td><td>${advCell}</td><td>${r.totalQty.toFixed(1)}</td><td>${fmtInt(r.totalAmt)}</td>
       <td style="white-space:normal; text-align:left;">${chips}</td></tr>`;
   }, ()=>{
@@ -2030,15 +2058,23 @@ function branchPlanForMode(branchCode, mode){
   return { advisorRows, itemTotalRows, currentVas, targetVas, advisorCount: advs.length };
 }
 
+/* One single allocation across the whole network, using network-wide
+   blended weights and the exact NETWORK_FIXED_TARGET — guarantees the
+   network total lands exactly on target. Summing 27 already-rounded
+   per-branch plans (each itself summing already-rounded per-advisor
+   plans) compounds rounding drift and lands a little short/over; this
+   avoids that for anywhere the NETWORK total specifically needs to be
+   exact, while each branch's own plan (Item Plan by Branch) stays exact
+   for that branch individually. */
+function networkItemPlan(mode){
+  const weights = getMainWeights('ALL', mode);
+  const qtyMap = allocateQtyWithFloor(weights, NETWORK_FIXED_TARGET);
+  return activeItems.map(it=>({item:it, qty:qtyMap[it], amount:qtyMap[it]*itemMaster[it]})).sort((a,b)=>b.qty-a.qty);
+}
+
 function renderItemPlan15cr(){
-  // Network-wide item plan for the network floor — aggregates each branch's MIN plan (same as Section 07), dept-aware
-  const itemTotals = {};
-  wipBranchesList.forEach(b=>{
-    const plan = branchPlanForMode(b, itemMode);
-    plan.itemTotalRows.forEach(r=>{ itemTotals[r.item] = (itemTotals[r.item]||0) + r.qty; });
-  });
-  const rows = Object.keys(itemTotals).map(it=>({item:it, qty:itemTotals[it], amount:itemTotals[it]*itemMaster[it]}))
-    .sort((a,b)=>b.qty-a.qty);
+  // Network-wide item plan for the network floor — one direct allocation (exact total), not a sum of per-branch plans
+  const rows = networkItemPlan(itemMode);
   fillTable('tblItemPlan15cr', rows, r=>{
     return `<tr><td>${dispCode(r.item)}</td><td>${fmtRate(itemMaster[r.item])}</td><td>${fmtInt(r.qty)}</td><td>${fmtInt(r.amount)}</td></tr>`;
   }, ()=>{
@@ -2076,10 +2112,7 @@ function computeItemCurrentVsPlan(branchCode){
     const cur = currentItemAmounts(itemMode);
     curAmounts = {}; activeItems.forEach(it=> curAmounts[it] = {qty:cur[it].qty, amt:cur[it].amt});
     planQty = {};
-    wipBranchesList.forEach(b=>{
-      const plan = branchPlanForMode(b, itemMode);
-      plan.itemTotalRows.forEach(r=>{ planQty[r.item] = (planQty[r.item]||0) + r.qty; });
-    });
+    networkItemPlan(itemMode).forEach(r=>{ planQty[r.item] = r.qty; });
   } else {
     const amtMap = itemAmounts(branchCode, itemMode==='combined'?'both':itemMode);
     curAmounts = {};
@@ -2193,8 +2226,23 @@ function recomputeWipItemTotals(){
   wipWorkingRows.forEach(r=> r.items.forEach(it=>{
     itemTotals[it.item] = (itemTotals[it.item]||0) + it.qty;
   }));
-  return Object.keys(itemTotals).map(it=>({item:it, qty:itemTotals[it], amount:itemTotals[it]*itemMaster[it]}))
-    .sort((a,b)=>b.qty-a.qty);
+  const rows = Object.keys(itemTotals).map(it=>({item:it, qty:itemTotals[it], amount:itemTotals[it]*itemMaster[it]}))
+    .sort((a,b)=>b.amount-a.amount);
+  // Summing many independently-rounded per-advisor plans drifts from the pool
+  // total (each advisor rounds to whole units on their own). Reconcile it by
+  // nudging the single largest-amount item by the residual, so this table's
+  // total always lands exactly on the pool it's meant to represent.
+  if(rows.length){
+    const currentTotal = rows.reduce((a,r)=>a+r.amount,0);
+    const residual = wipFixedPool - currentTotal;
+    if(Math.abs(residual) > 0.5){
+      const biggest = rows[0];
+      const qtyAdjust = Math.round(residual/itemMaster[biggest.item]);
+      biggest.qty = Math.max(0, biggest.qty + qtyAdjust);
+      biggest.amount = biggest.qty*itemMaster[biggest.item];
+    }
+  }
+  return rows.sort((a,b)=>b.qty-a.qty);
 }
 
 function updateWipCommitBar(){
@@ -2282,10 +2330,10 @@ function renderWipAdvisorTable(){
   tbody.innerHTML = order.map(idx=>{
     const r = wipWorkingRows[idx];
     const deptTag = r.advisor.dept==='Service' ? '<span class="tag dept-srv">Service</span>' : '<span class="tag dept-bds">Bodyshop</span>';
-    const range = wipBasis!=='uniform' ? ` <span class="small-muted">(MIN ${fmtInt(r.advisor.targetMin)} · MAX ${fmtInt(r.advisor.target0)})</span>` : '';
+    const range = wipBasis!=='uniform' ? `<span class="small-muted" style="display:block; font-family:var(--font-display); font-size:10px; margin-top:3px; white-space:nowrap;">MIN ${fmtInt(r.advisor.targetMin)} · MAX ${fmtInt(r.advisor.target0)}</span>` : '';
     const totalItemsQty = r.items.reduce((a,it)=>a+it.qty,0);
     return `<tr><td>${r.advisor.name}</td><td>${deptTag}</td><td>${fmtInt(r.advisor.current_avg)}</td>
-      <td><input type="number" class="target-input" data-idx="${idx}" value="${Math.round(r.target)}" step="1000">${range}</td>
+      <td style="white-space:normal; min-width:160px;"><input type="number" class="target-input" style="width:100%; text-align:right;" data-idx="${idx}" value="${Math.round(r.target)}" step="1000">${range}</td>
       <td>${totalItemsQty.toFixed(1)}</td>
       <td style="white-space:normal; text-align:left;">${formatFocusChips(r.items, r.advisor.branch)}</td></tr>`;
   }).join('');
@@ -2625,7 +2673,7 @@ document.getElementById('plannerSaveBtn').addEventListener('click', ()=>{
   if(typeof renderMainBranches==='function') renderMainBranches();
   if(typeof renderMainAdvisors==='function') renderMainAdvisors();
   if(typeof updateMainItemTargetForScope==='function'){ updateMainItemTargetForScope(); mainItemQtys=null; renderMainItems(); }
-  if(typeof renderDayAll==='function') renderDayAll();
+  if(typeof renderDayAll==='function'){ if(typeof dayTargetOverride!=='undefined') dayTargetOverride = null; renderDayAll(); }
 });
 function setPlannerTarget(v){
   plannerTarget = Math.max(0, v||0);
@@ -2978,10 +3026,13 @@ function renderMainItems(){
 
   tbl.querySelector('tbody').innerHTML = rows.map(r=>{
     const upClass = r.tgtpct>=r.curpct ? 'neg' : 'pos';
+    const progressRatio = r.tgtpct>0 ? (r.curpct/r.tgtpct) : 1;
+    const badgeColor = progressRatio>=0.7 ? '#1FA97F' : progressRatio>=0.3 ? '#D9A441' : '#D9534F';
+    const badgeBg = progressRatio>=0.7 ? 'rgba(31,169,127,0.12)' : progressRatio>=0.3 ? 'rgba(217,164,65,0.14)' : 'rgba(217,83,79,0.12)';
     return `<tr><td><b>${dispCode(r.code)}</b></td><td>${r.name}</td><td>${fmtRate(r.price)}</td>
       <td><input type="number" min="0" step="1" class="target-input mainitem-qty-input" style="width:80px;" data-code="${r.code}" value="${Math.round(r.qty)}"></td>
       <td class="mainitem-amt" data-code="${r.code}">${fmtRs(r.amount)}</td>
-      <td>${r.curpct.toFixed(2)}%</td>
+      <td><span style="display:inline-block; padding:2px 8px; border-radius:10px; font-weight:700; color:${badgeColor}; background:${badgeBg};">${r.curpct.toFixed(2)}%</span></td>
       <td class="${upClass}">${r.tgtpct.toFixed(2)}%</td>
       <td style="white-space:normal; text-align:left; font-size:11px;">${r.reason}</td></tr>`;
   }).join('');
@@ -3121,8 +3172,11 @@ function renderMainMarket(){
       return `<tr><td>${dispCode(r.code)}</td><td><span class="small-muted">${NO_BENCHMARK_NOTE}</span></td>
         <td>${r.ourPct.toFixed(1)}%</td><td>—</td><td>—</td><td>—</td><td>${fmtRs(r.amount)}</td></tr>`;
     }
+    const ratio = r.bestPct>0 ? r.ourPct/r.bestPct : 1;
+    const badgeColor = ratio>=0.7 ? '#1FA97F' : ratio>=0.3 ? '#D9A441' : '#D9534F';
+    const badgeBg = ratio>=0.7 ? 'rgba(31,169,127,0.12)' : ratio>=0.3 ? 'rgba(217,164,65,0.14)' : 'rgba(217,83,79,0.12)';
     return `<tr><td>${dispCode(r.code)}</td><td>${r.items}</td>
-      <td>${r.ourPct.toFixed(1)}%</td><td><b>${r.bestPct.toFixed(1)}%</b></td><td>${r.bestDealer}</td>
+      <td><span style="display:inline-block; padding:2px 8px; border-radius:10px; font-weight:700; color:${badgeColor}; background:${badgeBg};">${r.ourPct.toFixed(1)}%</span></td><td><b>${r.bestPct.toFixed(1)}%</b></td><td>${r.bestDealer}</td>
       <td class="${r.uplift>=0?'neg':'pos'}">${r.uplift>=0?'+':''}${r.uplift.toFixed(1)}</td>
       <td>${fmtRs(r.amount)}</td></tr>`;
   }, ()=>{
@@ -3221,12 +3275,13 @@ loadPlanReset();
    10 DAY-WISE PLANNER
    ===================================================================== */
 let dayMode = 'workshop';
-let dayBranch = wipBranchesList[0];
+let dayBranch = 'ALL'; // matches the dropdown's first/default option, consistent with the Load-based Plan fix
 let dayAdvisorIdx = 0;
 let daySplitMode = 'calendar';
 let dayTargets = null; // array of {date, dayNum, dow, isWorking, target}
 
 document.getElementById('dayWorkshopSel').innerHTML = '<option value="ALL">All Branches (Network)</option>' + zoneGroupedOptions(wipBranchesList, b=>b===AMBIGUOUS_BRANCH?'Kunnamkulam (ARENA+NEXA)':b);
+document.getElementById('dayWorkshopSel').value = dayBranch; // keep the visible dropdown and the JS state in sync from the start
 document.getElementById('dayAdvisorSel').innerHTML = advisorsSortedForPlanner.map((a,i)=>
   `<option value="${i}">${a.name} (${a.branch})</option>`).join('');
 
@@ -3239,7 +3294,9 @@ function monthLabel(y,m){
 }
 function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
 
+let dayTargetOverride = null; // manually edited monthly target, overrides the computed one until reset
 function dayMonthlyTarget(){
+  if(dayTargetOverride!=null) return dayTargetOverride;
   if(dayMode==='workshop'){
     return computeBranchAdvisorPlan(dayBranch, 'min').targetVas;
   }
@@ -3314,9 +3371,10 @@ function renderDayKPI(){
     : advisorsSortedForPlanner[dayAdvisorIdx].name;
   const {year,month} = currentPlannerMonth();
   document.getElementById('dayPlannerMonthBadge').textContent = monthLabel(year,month);
+  document.getElementById('dayMonthlyTargetInput').value = Math.round(monthlyTarget);
   document.getElementById('kpiDayPlanner').innerHTML = [
     kpiCard(dayMode==='workshop'?'Workshop':'Advisor', label, '', dayMode==='workshop'?('from MIN ('+fmtRs(NETWORK_FIXED_TARGET)+' floor share)'):'from their own MIN target', PAL.navy),
-    kpiCard('Monthly Target', fmtFull(monthlyTarget), '', monthLabel(year,month), PAL.amber),
+    kpiCard('Monthly Target', fmtFull(monthlyTarget), '', dayTargetOverride!=null ? 'manually set — edit the field above to change' : monthLabel(year,month)+' · editable above', PAL.amber),
     kpiCard('Days in Plan', dayTargets.filter(d=>d.target>0||daySplitMode==='calendar').length, '', daySplitMode==='working'?'working days only':'every calendar day', PAL.steel),
     kpiCard('Sum of Daily Targets', fmtFull(sum), '', Math.abs(sum-monthlyTarget)<10 ? 'matches monthly target ✓' : 'edited — no longer matches monthly total', sum>=monthlyTarget?PAL.teal:PAL.red),
   ].join('');
@@ -3334,14 +3392,19 @@ document.getElementById('segDayMode').addEventListener('click', e=>{
   document.querySelectorAll('#segDayMode button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   dayMode = btn.dataset.mode;
+  dayTargetOverride = null; // switching context — go back to that context's computed default
   document.getElementById('dayWorkshopSel').style.display = dayMode==='workshop' ? '' : 'none';
   document.getElementById('dayAdvisorSel').style.display = dayMode==='advisor' ? '' : 'none';
   renderDayAll();
 });
-document.getElementById('dayWorkshopSel').addEventListener('change', e=>{ dayBranch = e.target.value; renderDayAll(); });
-document.getElementById('dayAdvisorSel').addEventListener('change', e=>{ dayAdvisorIdx = +e.target.value; renderDayAll(); });
+document.getElementById('dayWorkshopSel').addEventListener('change', e=>{ dayBranch = e.target.value; dayTargetOverride = null; renderDayAll(); });
+document.getElementById('dayAdvisorSel').addEventListener('change', e=>{ dayAdvisorIdx = +e.target.value; dayTargetOverride = null; renderDayAll(); });
 document.getElementById('daySplitMode').addEventListener('change', e=>{ daySplitMode = e.target.value; renderDayAll(); });
-document.getElementById('dayResetBtn').addEventListener('click', renderDayAll);
+document.getElementById('dayMonthlyTargetInput').addEventListener('change', e=>{
+  dayTargetOverride = Math.max(0, Number(e.target.value)||0);
+  renderDayAll();
+});
+document.getElementById('dayResetBtn').addEventListener('click', ()=>{ dayTargetOverride = null; renderDayAll(); });
 
 renderDayAll();
 
@@ -3480,6 +3543,118 @@ function initExportButtons(){
   });
 }
 initExportButtons();
+</script>
+
+<script>
+window.addEventListener('load', function(){
+  try {
+    if (typeof setNetworkTarget === 'function' && typeof NETWORK_FIXED_TARGET !== 'undefined' && NETWORK_FIXED_TARGET !== 20000000) {
+      setNetworkTarget(20000000);
+      if (typeof refreshEverythingForNetworkTarget === 'function') refreshEverythingForNetworkTarget();
+      if (typeof retextNetworkTargetLabels === 'function') {
+        retextNetworkTargetLabels('\u20b91,50,00,000','\u20b92,00,00,000','1.5 Cr','2.0 Cr');
+      }
+    }
+    document.querySelectorAll('#targetSwitch button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.target === '20000000');
+    });
+
+    // Remove the topbar's "Avg Combined VAS" stat entirely (not just hide the number)
+    var tbVas = document.getElementById('tb-vas');
+    if (tbVas) {
+      var tbCell = tbVas.closest('.tb-stat');
+      var prevDivider = tbCell ? tbCell.previousElementSibling : null;
+      if (tbCell) tbCell.remove();
+      if (prevDivider && prevDivider.classList.contains('tb-divider')) prevDivider.remove();
+    }
+
+    // Merge Items tab content into Branches tab
+    var itemsDiv = document.getElementById('mainsub-items');
+    var branchesDiv = document.getElementById('mainsub-branches');
+    if (itemsDiv && branchesDiv) {
+      var divider = document.createElement('div');
+      divider.style.cssText = 'height:1px; background:var(--line); margin:28px 0;';
+      branchesDiv.appendChild(divider);
+      while (itemsDiv.firstChild) branchesDiv.appendChild(itemsDiv.firstChild);
+      itemsDiv.remove();
+    }
+
+    // Merge the Advisor & Workshop Planner INTO Advisor + Item Plan (Full)
+    var plannerDiv = document.getElementById('view-planner');
+    var advitemDiv = document.getElementById('view-advitem');
+    if (plannerDiv && advitemDiv) {
+      var pDivider = document.createElement('div');
+      pDivider.style.cssText = 'height:2px; background:#C0392B; margin:32px 0; opacity:0.3;';
+      var pHeading = document.createElement('div');
+      pHeading.style.cssText = 'margin:0 0 16px;';
+      pHeading.innerHTML = '<h2 style="margin-bottom:4px;">Edit an Advisor\'s Item-by-Item Plan</h2><div class="sub">Pick an advisor, edit any item\'s quantity directly, then Save — it becomes their Commitment and reflects everywhere this dashboard shows their target.</div>';
+      advitemDiv.appendChild(pDivider);
+      advitemDiv.appendChild(pHeading);
+      var plannerChildren = [...plannerDiv.children];
+      plannerChildren.forEach(function(child){
+        if (child.classList && child.classList.contains('section-head')) return;
+        advitemDiv.appendChild(child);
+      });
+      plannerDiv.remove();
+    }
+
+    ['items','advisors','planner-detail'].forEach(function(sub){
+      var btn = document.querySelector('#segMainNav button[data-sub="' + sub + '"]');
+      if (btn) btn.remove();
+    });
+
+    var msCurrentVasEl = document.getElementById('msCurrentVas');
+    var msOpportunityEl = document.getElementById('msOpportunity');
+    if (msCurrentVasEl) { var c1 = msCurrentVasEl.closest('div[style*="min-width:170px"]'); if(c1) c1.remove(); }
+    if (msOpportunityEl) { var c2 = msOpportunityEl.closest('div[style*="min-width:170px"]'); if(c2) c2.remove(); }
+
+    ['tblMainZone','tblMainCluster'].forEach(function(id){
+      var tbl = document.getElementById(id);
+      if (tbl) { var card = tbl.closest('.card'); if (card) card.style.display = 'none'; }
+    });
+
+    // Trim "Item-wise Projection (Full)": hide 4 cards, AND the "Current Item VAS
+    // Amount" KPI card from its KPI row.
+    var itemView = document.getElementById('view-item');
+    if (itemView) {
+      itemView.querySelectorAll('.card').forEach(function(card){
+        var h3 = card.querySelector('h3');
+        if (!h3) return;
+        var t = h3.textContent;
+        if (t.indexOf('Item Glossary') !== -1 || t.indexOf('Current Item Mix') !== -1 ||
+            t.indexOf('Item Catalog') !== -1 || t.indexOf('Workshop Item Performance') !== -1) {
+          card.style.display = 'none';
+        }
+      });
+      itemView.querySelectorAll('.kpi .lab').forEach(function(lab){
+        if (lab.textContent.indexOf('Current Item VAS Amount') !== -1) {
+          var kpi = lab.closest('.kpi');
+          if (kpi) kpi.style.display = 'none';
+        }
+      });
+    }
+
+    if (advitemDiv) {
+      advitemDiv.querySelectorAll('.card').forEach(function(card){
+        var h3 = card.querySelector('h3');
+        if (h3 && h3.textContent.indexOf('All Branches') !== -1 && h3.textContent.indexOf('Summary') !== -1) {
+          card.style.display = 'none';
+        }
+      });
+      var topNotes = advitemDiv.querySelectorAll('.rate-note');
+      if (topNotes[0]) topNotes[0].style.display = 'none';
+      if (topNotes[1]) topNotes[1].style.display = 'none';
+      ['commitment','uniform'].forEach(function(basis){
+        var btn = advitemDiv.querySelector('#segTargetBasis button[data-basis="' + basis + '"]');
+        if (btn) btn.remove();
+      });
+      var saveCommitBtn = document.getElementById('wipSaveCommitBtn');
+      if (saveCommitBtn) saveCommitBtn.style.display = 'none';
+      var commitStatus = document.getElementById('wipCommitStatus');
+      if (commitStatus) commitStatus.style.display = 'none';
+    }
+  } catch(e) { console.error('Dashboard 2 restructuring script error:', e); }
+});
 </script>
 </body>
 </html>

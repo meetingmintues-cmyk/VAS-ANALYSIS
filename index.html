@@ -169,7 +169,7 @@ tfoot td:first-child{text-align:left; position:sticky; left:0; background:var(--
 .live-pill{ background:rgba(192,57,43,0.16) !important; border-color:rgba(192,57,43,0.4) !important; color:#F7B4A8 !important; }
 .live-dot{ background:#E86A5C !important; }
 #tblMainItemsBranchOverview th:nth-child(3), #tblMainItemsBranchOverview td:nth-child(3){ display:none; }
-#tb-vas, .tb-divider:has(+ #tb-vas), #tb-vas + .l{ display:none !important; }
+#tblWipAdvisors th:nth-child(3), #tblWipAdvisors td:nth-child(3){ display:none; }
 
 body.mode-main .nav-wrap{display:none;}
 body.mode-main .view{display:none !important;}
@@ -193,7 +193,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
 .export-btn svg{ width:12px; height:12px; }
 </style>
 </head>
-<body class="mode-main">
+<body class="mode-main"><script>window.HIDE_CURRENT_PERFORMANCE = true;</script>
 <div class="topbar">
   <div class="topbar-left">
     <div class="mark">AM</div>
@@ -851,6 +851,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
         <button data-basis="uniform">What-if: ₹1,00,000 each</button>
       </div>
       <button id="wipResetBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↺ Reset split</button>
+      <button id="wipUndoBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↩ Undo</button>
       <button id="wipSaveCommitBtn" class="seg" style="border:none; background:var(--teal-100); color:#0F7A5A; padding:9px 16px; font-size:12.5px; font-weight:700; cursor:pointer;">💾 Save as Commitment</button>
       <span class="small-muted" id="wipCommitStatus"></span>
     </div>
@@ -984,6 +985,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
       <select id="plannerAdvisorSel"></select>
       <select id="plannerBranchSel" style="display:none;"></select>
       <button id="plannerResetBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↺ Reset to suggested</button>
+      <button id="plannerUndoBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↩ Undo</button>
       <button id="plannerSaveBtn" class="seg" style="border:none; background:var(--teal-100); color:#0F7A5A; padding:9px 16px; font-size:12.5px; font-weight:700; cursor:pointer;">💾 Save — reflect everywhere</button>
       <span class="small-muted" id="plannerSaveStatus"></span>
     </div>
@@ -1939,12 +1941,12 @@ function currentItemAmounts(mode){
 function renderItemKPI(){
   const cur = currentItemAmounts(itemMode);
   const curTotal = activeItems.reduce((a,it)=>a+cur[it].amt,0);
-  document.getElementById('kpiItem').innerHTML = [
-    kpiCard('Current Item VAS Amount', fmtRs(curTotal), '', modeLabel[itemMode]+' · sum of all 16 items (reference)', PAL.ink),
-    kpiCard(fmtRs(NETWORK_FIXED_TARGET)+' Item Plan Value', fmtRs(NETWORK_FIXED_TARGET), '', 'network target, all branches combined', PAL.amber),
-    kpiCard('Branches in Plan', wipBranchesList.length, '', 'Pandikkad/Ponnani excluded', PAL.navy),
-    kpiCard('Items in Catalog', activeItems.length, '', 'tracked every month', PAL.navy),
-  ].join('');
+  const cards = [];
+  if(!window.HIDE_CURRENT_PERFORMANCE) cards.push(kpiCard('Current Item VAS Amount', fmtRs(curTotal), '', modeLabel[itemMode]+' · sum of all 16 items (reference)', PAL.ink));
+  cards.push(kpiCard(fmtRs(NETWORK_FIXED_TARGET)+' Item Plan Value', fmtRs(NETWORK_FIXED_TARGET), '', 'network target, all branches combined', PAL.amber));
+  cards.push(kpiCard('Branches in Plan', wipBranchesList.length, '', 'Pandikkad/Ponnani excluded', PAL.navy));
+  cards.push(kpiCard('Items in Catalog', activeItems.length, '', 'tracked every month', PAL.navy));
+  document.getElementById('kpiItem').innerHTML = cards.join('');
 }
 
 function renderItemCatalogTable(){
@@ -2212,14 +2214,17 @@ const basisTitle = { min:'MIN (Network Floor)', max:'MAX (Own Target)', commitme
 
 let wipWorkingRows = null; // live-editable copy of the current plan's advisor rows
 let wipFixedPool = 0;      // the total these rows must always sum to
+let wipUndoStack = [];
 
 function rebuildWipWorkingRows(){
   const branchCode = wipBranchSel.value;
   const plan = computeBranchAdvisorPlan(branchCode, wipBasis);
   wipWorkingRows = plan.advisorRows.map(r=>({...r}));
   wipFixedPool = plan.targetVas;
+  wipUndoStack = [];
   return plan;
 }
+function snapshotWipRows(){ return wipWorkingRows.map(r=>({...r, items:r.items.map(it=>({...it}))})); }
 
 function recomputeWipItemTotals(){
   const itemTotals = {};
@@ -2257,6 +2262,7 @@ function updateWipCommitBar(){
 }
 
 function handleAdvisorTargetEdit(idx, rawValue){
+  wipUndoStack.push(snapshotWipRows());
   const newValue = Math.max(0, Number(rawValue)||0);
   const edited = wipWorkingRows[idx];
   const oldValue = edited.target;
@@ -2292,6 +2298,7 @@ function handleAdvisorTargetEdit(idx, rawValue){
 }
 
 function handleWipCommitEdit(rawValue){
+  wipUndoStack.push(snapshotWipRows());
   const newPool = Math.max(0, Number(rawValue)||0);
   const oldPool = wipFixedPool;
   if(oldPool>0){
@@ -2353,7 +2360,7 @@ function renderWipDrilldown(){
   document.getElementById('kpiWip').innerHTML = [
     kpiCard('Advisors at '+label, plan.advisorCount, '', null, PAL.navy),
     kpiCard('Target VAS to Achieve', fmtFull(plan.targetVas), '', basisNoteFor(wipBasis)+' — fixed pool, edit rows to redistribute', PAL.amber),
-    kpiCard('Current VAS (Reference)', fmtFull(plan.currentVas), '', (plan.targetVas>0?(plan.currentVas/plan.targetVas*100).toFixed(0):0)+'% of target already there', PAL.ink),
+    ...(window.HIDE_CURRENT_PERFORMANCE ? [] : [kpiCard('Current VAS (Reference)', fmtFull(plan.currentVas), '', (plan.targetVas>0?(plan.currentVas/plan.targetVas*100).toFixed(0):0)+'% of target already there', PAL.ink)]),
     kpiCard('Items Required', '<span id="kpiWipItemsCount">'+plan.itemTotalRows.length+'</span>', '', 'catalog items in this plan', PAL.steel),
   ].join('');
 
@@ -2384,6 +2391,13 @@ function renderWipAll(){ renderWipDrilldown(); renderWipSummary(); }
 
 wipBranchSel.addEventListener('change', renderWipDrilldown);
 document.getElementById('wipResetBtn').addEventListener('click', renderWipDrilldown);
+document.getElementById('wipUndoBtn').addEventListener('click', ()=>{
+  if(wipUndoStack.length===0) return;
+  wipWorkingRows = wipUndoStack.pop();
+  renderWipItemTable();
+  renderWipAdvisorTable();
+  updateWipCommitBar();
+});
 document.getElementById('segTargetBasis').addEventListener('click', e=>{
   const btn = e.target.closest('button'); if(!btn) return;
   document.querySelectorAll('#segTargetBasis button').forEach(b=>b.classList.remove('active'));
@@ -2513,14 +2527,6 @@ document.getElementById('navTabs').addEventListener('click', e=>{
 /* =====================================================================
    09 ADVISOR & WORKSHOP PLANNER
    ===================================================================== */
-function getMarketWeights(branchCode){
-  const mp = marketPotentialForBranch(branchCode);
-  const weights = {};
-  activeItems.forEach(it=>{
-    weights[it] = mp.amount>0 ? mp.byItem[it].amount/mp.amount : 1/activeItems.length;
-  });
-  return weights;
-}
 function suggestedQtyFromWeights(weights, targetAmount){
   return allocateQtyWithFloor(weights, targetAmount);
 }
@@ -2531,6 +2537,7 @@ let plannerBranchCode = null; // selected branch code (workshop mode)
 let plannerTarget = 0;
 let plannerMin = 0, plannerMax = 0;
 let plannerQtys = null; // {code: qty}, user-editable working state
+let plannerUndoStack = [];
 
 const plannerAdvisorSel = document.getElementById('plannerAdvisorSel');
 const plannerBranchSel = document.getElementById('plannerBranchSel');
@@ -2546,27 +2553,34 @@ plannerAdvisorSel.innerHTML = advisorsSortedForPlanner.map((a,i)=>{
 plannerBranchSel.innerHTML = '<option value="ALL">All Branches (Network)</option>' +
   zoneGroupedOptions(wipBranchesList, b=>b===AMBIGUOUS_BRANCH?'Kunnamkulam (ARENA+NEXA)':b);
 
+function plannerWeightDept(){
+  // Advisor mode: match Section 07 exactly by using that advisor's own
+  // department (Service/Bodyshop), not a combined blend across both.
+  return plannerMode==='advisor' ? (plannerAdvisor.dept==='Service' ? 'srv' : 'bds') : 'combined';
+}
 function plannerLoadAdvisor(idx){
   plannerAdvisor = advisorsSortedForPlanner[idx];
+  plannerUndoStack = [];
   plannerMin = plannerAdvisor.targetMin;
   plannerMax = plannerAdvisor.target;
   plannerTarget = plannerMin;
-  const weights = getMarketWeights(plannerAdvisor.branch);
+  const weights = getMainWeights(plannerAdvisor.branch, plannerAdvisor.dept==='Service' ? 'srv' : 'bds');
   plannerQtys = suggestedQtyFromWeights(weights, plannerTarget);
 }
 function plannerLoadWorkshop(branchCode){
   plannerBranchCode = branchCode;
+  plannerUndoStack = [];
   const advs = branchCode==='ALL' ? advisorsRaw : advisorsRaw.filter(a=>a.branch===branchCode);
   plannerMin = advs.reduce((a,r)=>a+r.targetMin,0);
   plannerMax = advs.reduce((a,r)=>a+r.target,0);
   plannerTarget = plannerMin;
-  const weights = getMarketWeights(branchCode);
+  const weights = getMainWeights(branchCode, 'combined');
   plannerQtys = suggestedQtyFromWeights(weights, plannerTarget);
 }
 
 function renderPlanner(){
   const branchCode = plannerMode==='advisor' ? plannerAdvisor.branch : plannerBranchCode;
-  const weights = getMarketWeights(branchCode);
+  const weights = getMainWeights(branchCode, plannerWeightDept());
   const suggested = suggestedQtyFromWeights(weights, plannerTarget);
   const label = plannerMode==='advisor' ? plannerAdvisor.name : (branchCode===AMBIGUOUS_BRANCH?'Kunnamkulam (ARENA+NEXA)':branchCode);
   const currentRef = plannerMode==='advisor' ? plannerAdvisor.current_avg :
@@ -2575,7 +2589,7 @@ function renderPlanner(){
   const pctOfTarget = plannerTarget>0 ? (currentRef/plannerTarget*100) : 0;
   document.getElementById('kpiPlanner').innerHTML = [
     kpiCard(plannerMode==='advisor'?'Advisor':'Workshop', label, '', plannerMode==='advisor' ? (plannerAdvisor.dept+' · '+plannerAdvisor.branch) : (advisorsRaw.filter(a=>a.branch===branchCode).length+' advisors'), PAL.navy),
-    kpiCard('Current VAS (Reference)', fmtFull(currentRef), '', pctOfTarget.toFixed(0)+'% of target already there', PAL.ink),
+    ...(window.HIDE_CURRENT_PERFORMANCE ? [] : [kpiCard('Current VAS (Reference)', fmtFull(currentRef), '', pctOfTarget.toFixed(0)+'% of target already there', PAL.ink)]),
     kpiCard('Your Target', fmtFull(plannerTarget), '', 'MIN '+fmtFull(plannerMin)+' · MAX '+fmtFull(plannerMax), PAL.amber),
     kpiCard('Your Plan Total', '<span id="plannerTotalVal">—</span>', '', '<span id="plannerStatus"></span>', PAL.purple),
   ].join('');
@@ -2598,6 +2612,9 @@ function renderPlanner(){
       <td style="white-space:normal; text-align:left; font-size:11px;">${reasonForItem(code, branchCode, suggested[code])}</td></tr>`;
   }).join('');
   tbl.querySelectorAll('.planner-qty-input').forEach(inp=>{
+    inp.addEventListener('focus', e=>{
+      plannerUndoStack.push({...plannerQtys}); // snapshot once per edit session, before the value changes
+    });
     inp.addEventListener('input', e=>{
       const code = e.target.dataset.code;
       plannerQtys[code] = Math.max(0, Number(e.target.value)||0);
@@ -2632,7 +2649,7 @@ function updatePlannerTotals(){
 
 function plannerReset(){
   const branchCode = plannerMode==='advisor' ? plannerAdvisor.branch : plannerBranchCode;
-  const weights = getMarketWeights(branchCode);
+  const weights = getMainWeights(branchCode, plannerWeightDept());
   plannerQtys = suggestedQtyFromWeights(weights, plannerTarget);
   renderPlanner();
 }
@@ -2650,6 +2667,11 @@ document.getElementById('segPlannerMode').addEventListener('click', e=>{
 plannerAdvisorSel.addEventListener('change', ()=>{ plannerLoadAdvisor(+plannerAdvisorSel.value); renderPlanner(); });
 plannerBranchSel.addEventListener('change', ()=>{ plannerLoadWorkshop(plannerBranchSel.value); renderPlanner(); });
 document.getElementById('plannerResetBtn').addEventListener('click', plannerReset);
+document.getElementById('plannerUndoBtn').addEventListener('click', ()=>{
+  if(plannerUndoStack.length===0) return;
+  plannerQtys = plannerUndoStack.pop();
+  renderPlanner();
+});
 document.getElementById('plannerSaveBtn').addEventListener('click', ()=>{
   const total = activeItems.reduce((a,code)=>a+(plannerQtys[code]||0)*itemMaster[code],0);
   const statusEl = document.getElementById('plannerSaveStatus');
@@ -2678,7 +2700,7 @@ document.getElementById('plannerSaveBtn').addEventListener('click', ()=>{
 function setPlannerTarget(v){
   plannerTarget = Math.max(0, v||0);
   const branchCode = plannerMode==='advisor' ? plannerAdvisor.branch : plannerBranchCode;
-  const weights = getMarketWeights(branchCode);
+  const weights = getMainWeights(branchCode, plannerWeightDept());
   plannerQtys = suggestedQtyFromWeights(weights, plannerTarget);
   renderPlanner();
   document.querySelectorAll('#segPlannerPreset button').forEach(b=>{
@@ -3559,7 +3581,6 @@ window.addEventListener('load', function(){
       b.classList.toggle('active', b.dataset.target === '20000000');
     });
 
-    // Remove the topbar's "Avg Combined VAS" stat entirely (not just hide the number)
     var tbVas = document.getElementById('tb-vas');
     if (tbVas) {
       var tbCell = tbVas.closest('.tb-stat');
@@ -3568,7 +3589,6 @@ window.addEventListener('load', function(){
       if (prevDivider && prevDivider.classList.contains('tb-divider')) prevDivider.remove();
     }
 
-    // Merge Items tab content into Branches tab
     var itemsDiv = document.getElementById('mainsub-items');
     var branchesDiv = document.getElementById('mainsub-branches');
     if (itemsDiv && branchesDiv) {
@@ -3579,7 +3599,6 @@ window.addEventListener('load', function(){
       itemsDiv.remove();
     }
 
-    // Merge the Advisor & Workshop Planner INTO Advisor + Item Plan (Full)
     var plannerDiv = document.getElementById('view-planner');
     var advitemDiv = document.getElementById('view-advitem');
     if (plannerDiv && advitemDiv) {
@@ -3613,8 +3632,8 @@ window.addEventListener('load', function(){
       if (tbl) { var card = tbl.closest('.card'); if (card) card.style.display = 'none'; }
     });
 
-    // Trim "Item-wise Projection (Full)": hide 4 cards, AND the "Current Item VAS
-    // Amount" KPI card from its KPI row.
+    // Trim "Item-wise Projection (Full)": hide 4 cards + the whole "Item
+    // Quantities Needed — Network" table (per this round's feedback).
     var itemView = document.getElementById('view-item');
     if (itemView) {
       itemView.querySelectorAll('.card').forEach(function(card){
@@ -3622,14 +3641,9 @@ window.addEventListener('load', function(){
         if (!h3) return;
         var t = h3.textContent;
         if (t.indexOf('Item Glossary') !== -1 || t.indexOf('Current Item Mix') !== -1 ||
-            t.indexOf('Item Catalog') !== -1 || t.indexOf('Workshop Item Performance') !== -1) {
+            t.indexOf('Item Catalog') !== -1 || t.indexOf('Workshop Item Performance') !== -1 ||
+            t.indexOf('Item Quantities Needed') !== -1) {
           card.style.display = 'none';
-        }
-      });
-      itemView.querySelectorAll('.kpi .lab').forEach(function(lab){
-        if (lab.textContent.indexOf('Current Item VAS Amount') !== -1) {
-          var kpi = lab.closest('.kpi');
-          if (kpi) kpi.style.display = 'none';
         }
       });
     }

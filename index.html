@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AM Motors — Cluster &amp; Workshop VAS Plan</title>
+<title>AM Motors — Cluster &amp; Workshop VAS Plan (₹1 Cr)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{
@@ -198,7 +198,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
   <div class="topbar-left">
     <div class="mark">AM</div>
     <div class="topbar-title">
-      <h1>AM Motors — Cluster &amp; Workshop VAS Plan</h1>
+      <h1>AM Motors — Cluster &amp; Workshop VAS Plan (₹1 Cr)</h1>
     </div>
   </div>
   <div class="topbar-right">
@@ -209,7 +209,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
     <div class="tb-divider"></div>
     <div class="mode-switch" id="targetSwitch" title="Switches the network floor everywhere — Main, Detailed, every page">
       <button data-target="15000000" class="active">₹1.5 Cr</button>
-      <button data-target="20000000">₹2.0 Cr</button>
+      <button data-target="10000000">₹1.0 Cr</button>
     </div>
     <div class="tb-divider"></div>
     <div class="tb-stat"><div class="v" id="tb-branches">--</div><div class="l">Branches</div></div>
@@ -245,7 +245,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
     <div class="section-head">
       <div>
         <h2>Main Summary</h2>
-        <div class="sub">The one number that matters — ₹2,00,00,000/month, split by branch, item, and advisor. Every figure here is full and unrounded.</div>
+        <div class="sub">The one number that matters — ₹1,00,00,000/month, split by branch, item, and advisor. Every figure here is full and unrounded.</div>
       </div>
       <span class="badge live">₹1,50,00,000 network target</span>
     </div>
@@ -840,7 +840,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
     </div>
 
     <div class="rate-note warn"><b>Network fixed target: ₹1.5 Cr/month.</b> Your 147 advisors' own chosen package targets already sum to ₹2.31 Cr (their combined MAX potential) — <span id="scaleFactorNote">that's well above the ₹1.5 Cr floor</span>. Scaling every advisor's target down by the same factor gives each of them a MIN to hit so the network lands exactly on ₹1.5 Cr, while their MAX stays their real personal target. This split naturally weights by how many advisors are at each branch and what packages they're on — no separate branch formula needed.</div>
-    <div class="rate-note"><b>Method:</b> this is a full implementation plan, not a gap-chase — current VAS figures aren't reliably monitored, so each advisor's <b>entire target (MIN, MAX, or their saved Commitment)</b> is allocated across all 16 catalog items in proportion to what their workshop's customers actually buy. Edit any row below, then <b>"💾 Save as Commitment"</b> to lock those numbers in as what that advisor has actually committed to — it becomes its own basis option, available everywhere this dashboard shows advisor targets. The branch total is always the exact sum of its advisors — so Network → Branch → Item → Advisor always adds up.</div>
+    <div class="rate-note"><b>Method:</b> this is a full implementation plan, not a gap-chase — current VAS figures aren't reliably monitored, so each advisor's entire target is allocated across all 16 catalog items in proportion to what their workshop's customers actually buy. Edit any row below — the others in that branch rebalance automatically to stay pinned to the branch total — then <b>"💾 Save &amp; Fix These Targets"</b> to lock those numbers in permanently: they'll show up exactly as saved everywhere this dashboard displays that advisor's target, and only the still-unsaved advisors in their branch keep adjusting around them. The branch total is always the exact sum of its advisors — so Network → Branch → Item → Advisor always adds up.</div>
 
     <div class="filter-row">
       <select id="wipBranchSel"></select>
@@ -852,7 +852,7 @@ th.sortable.sort-active .sort-arrow{ opacity:1; }
       </div>
       <button id="wipResetBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↺ Reset split</button>
       <button id="wipUndoBtn" class="seg" style="border:none; background:#fff; padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--ink-500); cursor:pointer;">↩ Undo</button>
-      <button id="wipSaveCommitBtn" class="seg" style="border:none; background:var(--teal-100); color:#0F7A5A; padding:9px 16px; font-size:12.5px; font-weight:700; cursor:pointer;">💾 Save as Commitment</button>
+      <button id="wipSaveCommitBtn" class="seg" style="border:none; background:var(--teal-100); color:#0F7A5A; padding:9px 16px; font-size:12.5px; font-weight:700; cursor:pointer;">💾 Save &amp; Fix These Targets</button>
       <span class="small-muted" id="wipCommitStatus"></span>
     </div>
 
@@ -1532,22 +1532,39 @@ function computeBranchAdvisorPlan(branchCode, basis){
   const advs = branchCode==='ALL' ? advisorsRaw : advisorsRaw.filter(a=> a.branch===branchCode);
   // Per-branch scale factor so an override on one branch is honored whether
   // we're looking at that branch alone or as part of the "All Branches" total.
+  // Under MIN basis specifically: any advisor with a saved Commitment keeps
+  // that exact fixed number, and the remaining (uncommitted) advisors in
+  // their branch rebalance to absorb the difference — so the branch's total
+  // always still lands on its target, saved numbers never silently drift,
+  // and you don't need a separate "Commitment" view to see them take effect.
   const branchScaleCache = {};
+  function branchPoolFor(bc){
+    if(branchTargetOverride[bc]!=null) return branchTargetOverride[bc];
+    // a.targetMin is ALREADY a.target * NETWORK_SCALE_FACTOR (computed once at
+    // data-load time) — so this raw sum IS the correct default branch pool.
+    // Multiplying by NETWORK_SCALE_FACTOR again here was a bug: it silently
+    // shrank every branch's target (and the network total) below the real 2 Cr/1.5 Cr floor.
+    return advisorsRaw.filter(a=>a.branch===bc).reduce((a,r)=>a+r.targetMin,0);
+  }
   function scaleForBranch(bc){
     if(branchScaleCache[bc]!=null) return branchScaleCache[bc];
-    let s = 1;
-    if(branchTargetOverride[bc]!=null){
-      const rawSum = advisorsRaw.filter(a=>a.branch===bc).reduce((a,r)=>a+r.targetMin,0);
-      if(rawSum>0) s = branchTargetOverride[bc]/rawSum;
-    }
+    const advsInBranch = advisorsRaw.filter(a=>a.branch===bc);
+    const committed = advsInBranch.filter(a=> advisorCommitment[advKey(a)]!=null);
+    const uncommitted = advsInBranch.filter(a=> advisorCommitment[advKey(a)]==null);
+    const pool = branchPoolFor(bc);
+    const committedSum = committed.reduce((a,r)=>a+advisorCommitment[advKey(r)],0);
+    const remaining = Math.max(0, pool - committedSum);
+    const uncommittedRawSum = uncommitted.reduce((a,r)=>a+r.targetMin,0);
+    const s = uncommittedRawSum>0 ? remaining/uncommittedRawSum : 1;
     branchScaleCache[bc] = s;
     return s;
   }
   const advisorRows = advs.map(a=>{
+    const committedVal = advisorCommitment[advKey(a)];
     const scale = basis==='min' ? scaleForBranch(a.branch) : 1;
-    const target = basis==='min' ? a.targetMin*scale
+    const target = basis==='min' ? (committedVal!=null ? committedVal : a.targetMin*scale)
       : basis==='uniform' ? 100000
-      : basis==='commitment' ? (advisorCommitment[advKey(a)]!=null ? advisorCommitment[advKey(a)] : a.targetMin*scaleForBranch(a.branch))
+      : basis==='commitment' ? (committedVal!=null ? committedVal : a.targetMin*scaleForBranch(a.branch))
       : a.target;
     const dept = a.dept==='Service' ? 'srv' : 'bds';
     // The implementation plan is driven by the FULL target, not the gap from an
@@ -2408,12 +2425,11 @@ document.getElementById('segTargetBasis').addEventListener('click', e=>{
 });
 document.getElementById('wipSaveCommitBtn').addEventListener('click', ()=>{
   wipWorkingRows.forEach(r=>{ advisorCommitment[advKey(r.advisor)] = r.target; });
-  document.getElementById('wipCommitStatus').innerHTML = '<span class="pos">Saved ✓ — these amounts are now each advisor\u2019s Commitment, everywhere</span>';
-  if(wipBasis!=='commitment'){
-    document.querySelectorAll('#segTargetBasis button').forEach(b=>b.classList.remove('active'));
-    document.querySelector('#segTargetBasis button[data-basis="commitment"]').classList.add('active');
-    wipBasis = 'commitment';
-  }
+  const statusEl = document.getElementById('wipCommitStatus');
+  if(statusEl) statusEl.innerHTML = '<span class="pos">Saved ✓ — these targets are now fixed for these advisors, everywhere this dashboard shows their number</span>';
+  // MIN basis itself now respects saved commitments directly (no separate
+  // "Commitment" view needed) — just re-render so the fixed numbers, and the
+  // other advisors rebalancing around them, show immediately.
   renderWipAll();
 });
 renderWipAll();
@@ -3570,15 +3586,15 @@ initExportButtons();
 <script>
 window.addEventListener('load', function(){
   try {
-    if (typeof setNetworkTarget === 'function' && typeof NETWORK_FIXED_TARGET !== 'undefined' && NETWORK_FIXED_TARGET !== 20000000) {
-      setNetworkTarget(20000000);
+    if (typeof setNetworkTarget === 'function' && typeof NETWORK_FIXED_TARGET !== 'undefined' && NETWORK_FIXED_TARGET !== 10000000) {
+      setNetworkTarget(10000000);
       if (typeof refreshEverythingForNetworkTarget === 'function') refreshEverythingForNetworkTarget();
       if (typeof retextNetworkTargetLabels === 'function') {
-        retextNetworkTargetLabels('\u20b91,50,00,000','\u20b92,00,00,000','1.5 Cr','2.0 Cr');
+        retextNetworkTargetLabels('\u20b91,50,00,000','\u20b91,00,00,000','1.5 Cr','1.0 Cr');
       }
     }
     document.querySelectorAll('#targetSwitch button').forEach(function(b){
-      b.classList.toggle('active', b.dataset.target === '20000000');
+      b.classList.toggle('active', b.dataset.target === '10000000');
     });
 
     var tbVas = document.getElementById('tb-vas');
@@ -3662,14 +3678,11 @@ window.addEventListener('load', function(){
         var btn = advitemDiv.querySelector('#segTargetBasis button[data-basis="' + basis + '"]');
         if (btn) btn.remove();
       });
-      var saveCommitBtn = document.getElementById('wipSaveCommitBtn');
-      if (saveCommitBtn) saveCommitBtn.style.display = 'none';
-      var commitStatus = document.getElementById('wipCommitStatus');
-      if (commitStatus) commitStatus.style.display = 'none';
+      // Save button (and its status line) stay VISIBLE — bulk target edits
+      // in this table need a way to be fixed and reflected everywhere.
     }
   } catch(e) { console.error('Dashboard 2 restructuring script error:', e); }
 });
 </script>
 </body>
 </html>
-
